@@ -1,5 +1,6 @@
 package com.leonardwohl.goodgrief;
 
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.projectile.LargeFireball;
@@ -34,9 +35,13 @@ public class GoodGriefMod
 
     @SubscribeEvent
     public void onMobGriefing(EntityMobGriefingEvent event){
-        boolean mobGriefing = event.getEntity().getLevel().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
+        Entity entity = event.getEntity();
+        if(entity == null || entity.getLevel() == null || entity.getLevel().getGameRules() == null)
+            return;
+        if(entity.getLevel().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING))
+            return;
         boolean isEnemy = event.getEntity() instanceof Enemy && !(event.getEntity() instanceof Piglin);
         boolean isProjectile = event.getEntity() instanceof LargeFireball || event.getEntity() instanceof WitherSkull;
-        event.setResult(!mobGriefing && (isEnemy || isProjectile) ? Event.Result.DENY : Event.Result.ALLOW);
+        event.setResult(isEnemy || isProjectile ? Event.Result.DENY : Event.Result.ALLOW);
     }
 }
